@@ -1,4 +1,5 @@
 
+
 name: Build FFH4X APK
 
 on:
@@ -9,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Baixar projeto
+      - name: Baixar arquivos
         uses: actions/checkout@v4
 
       - name: Configurar Java
@@ -23,18 +24,23 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Configurar Android SDK
+      - name: Configurar Android
         uses: android-actions/setup-android@v3
 
-      - name: Instalar SDK 35
+      - name: Instalar SDK
         run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
-      - name: Compilar APK
-        run: gradle assembleDebug
+      - name: Extrair projeto
+        run: |
+          ZIP_FILE=$(find . -maxdepth 1 -name '*.zip' | head -n 1)
+          unzip -q "$ZIP_FILE" -d extracted
+
+      - name: Compilar aplicativo
+        run: gradle -p extracted/FFH4X_Android assembleDebug
 
       - name: Disponibilizar APK
         uses: actions/upload-artifact@v4
         with:
           name: FFH4X-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: extracted/FFH4X_Android/app/build/outputs/apk/debug/app-debug.apk
           
